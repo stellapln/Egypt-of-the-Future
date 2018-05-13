@@ -1,10 +1,7 @@
-#include "../include/jeu.h"
-#include "../include/graphique.h"
+#include "../include/game.h"
 
 
-int main(){
+int main(int argc, char** argv){
 
-
-
-	return 0;
+	return EXIT_SUCCESS;
 }
