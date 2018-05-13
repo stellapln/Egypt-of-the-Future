@@ -1,9 +1,88 @@
 #include "../include/game.h"
 
-int initializeSDL(int level){
 
-    /* SDL initialization */
-    if(-1 == SDL_Init(SDL_INIT_VIDEO)) {
+ListeElements allocBg(float x, float y, float speed, GLuint text){
+	ListeElements tmp = (Element*)malloc(sizeof(Element));
+
+	tmp->pos.x = x;
+	tmp->pos.y = y;
+	tmp->speed = speed;
+	tmp->textureID = text;
+	tmp->next = NULL;
+
+	return tmp;
+}
+
+ListeElements allocElements(){
+
+}
+
+void pushElements(World *world, int level){
+	char line[100];
+    FILE *file = NULL;
+	if(level == 1)
+		file = fopen("./img/ppm/new_ppm.ppm", "r"); // level 1
+    else 
+	   file = fopen("./img/ppm/new_ppm.ppm", "r");
+	/* Read line per line the file */
+	fgets(line, sizeof(line), file); /* Line P3 */
+	fgets(line, sizeof(line), file); /* Line GIMP... */
+	fgets(line, sizeof(line), file); /* Line Width & Height */
+	sscanf(line," %d %d", &(PPM_WIDTH), &(PPM_HEIGHT));
+	fgets(line, sizeof(line), file); /* 255 line */
+
+	int x = 0;
+	int y = PPM_HEIGHT;
+	int r, g, b;
+	char imgSrc[100];
+
+	while(fgets(line, sizeof(line), file) != NULL){
+		if(x == PPM_WIDTH){
+			x = 0;
+			y--;
+		}
+		fscanf(line," %d\n %d\n %d\n", &r, &g, &b);
+		if(r == 255 && g == 0 && b == 0){
+			// mobs
+		}
+		else if(r == 255 && g == 0 && b == 255){
+			// ship
+		}
+		else if(r == 0 && g == 0 && b == 0){
+			// obstacles
+		}
+		else if(r == 0 && g == 255 && b == 0){
+			// bonus
+		}
+		else if(r == 0 && g == 0 && b == 255){
+			// key
+		}
+		if(r == 255){
+			if(b == 0){
+				//mobs
+			}
+			else if(g == 0){
+				//ship
+			}
+		}
+		else {
+			if(g == 255){
+				//bonus
+			}
+			else if (b == 255){
+				//key
+			}
+			//obs
+		}
+		x++;
+	}
+
+}
+
+
+int initializeSDL(){
+
+	 if(-1 == SDL_Init(SDL_INIT_VIDEO)) {
         fprintf(stderr, "Impossible d'initialiser la SDL. Fin du programme.\n");
         return EXIT_FAILURE;
     }
@@ -22,6 +101,40 @@ int initializeSDL(int level){
 
 }
 
+
+
+void initializeElements(World *world, int level){
+
+	GLuint bg1, bg2;
+	//createImgPNG(&bg1, )
+	float bgx1 = 0;
+	float bgy1 = 0;
+	float bgx2 = 60;
+	float bgy2 = 0;
+	float bgSpeed = 0.1;
+	Element *Bg1 = allocBg(bgx1,bgy1,bgSpeed,bg1); // 2 bg
+	Element *Bg2 = allocBg(bgx2,bgy2,bgSpeed,bg2); // 2 bg
+    Element *Ship;
+    pushElements(&world, level);
+
+}
+
+
+int initializeGame(World world, int level){
+
+    /* SDL initialization */
+    initializeSDL();
+
+
+    /* ELEMENTS initialization */
+    initializeElements(&world, level);
+
+    /* */
+
+    return EXIT_SUCCESS;
+
+}
+
 void gameLoop(){
     int loop = 1;
 
@@ -31,13 +144,6 @@ void gameLoop(){
 
     Uint32 startTime = SDL_GetTicks();
 
-    ListeElements Background = allocElement(0,0,0.1,0,); // 2 bg
-    Element Ship;
-    ListeElements Arrow = NULL;
-    ListeElements Mobs = NULL;
-    ListeElements Obstacles = NULL;
-    ListeElements Bonus = NULL;
-    ListeElements Keys = NULL;
 
     /*********** LOOP **********/
 
