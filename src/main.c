@@ -1,2 +1,10 @@
-#include "../headers/jeu.h"
-#include "../headers/graphique.h"
+#include "../include/jeu.h"
+#include "../include/graphique.h"
+
+
+int main(){
+
+
+
+	return 0;
+}
