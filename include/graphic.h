@@ -26,3 +26,4 @@ static const Uint32 FRAMERATE_MILLISECONDS = 1000/60;
 /********** PROTOTYPES *********/
 
 void resizeViewport(int w, int h);
+void drawElement();

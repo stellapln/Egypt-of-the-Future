@@ -9,4 +9,7 @@ void resizeViewport(int w, int h) {
     glLoadIdentity();
     gluOrtho2D(0., 60., 0.,40.);
 }
-//
+
+void drawElement(){
+	
+}

@@ -12,7 +12,7 @@ typedef struct coord{
 * 4 coordinates for the bouding box
 * a velocity
 * a texture
-* will be in a simple liste
+* will be in a simple list
 */
 typedef struct element{
 	Coordinates x, y;
@@ -22,3 +22,8 @@ typedef struct element{
     GLuint textureID;
 	struct element *suiv;
 } Element, *ListeElements;
+
+
+
+int initializeSDL(int level);
+void gameLoop();
