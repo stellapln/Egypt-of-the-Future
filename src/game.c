@@ -1,88 +1,99 @@
 #include "../include/game.h"
 
 
-ListeElements allocBg(float x, float y, float speed, GLuint text){
+ListeElements initBg(float x, float y, float speed){
 	ListeElements tmp = (Element*)malloc(sizeof(Element));
 
 	tmp->pos.x = x;
 	tmp->pos.y = y;
 	tmp->speed = speed;
-	tmp->textureID = text;
 	tmp->next = NULL;
 
 	return tmp;
 }
 
-ListeElements allocElements(){
+ListeElements initElement(float x, float y, int life, float speed){
+	Element *tmp = (Element*)malloc(sizeof(Element));
+	tmp->pos.x = x;
+	tmp->pos.y = y;
+	tmp->life = life;
+	tmp->next = NULL;
 
+	return tmp;
 }
 
+
+void addElementToList(ListeElements *lst, float x, float y, int life, float speed){
+	Element *tmp = initElement(x, y, life, speed);
+	if (lst != NULL){
+		tmp->next = *lst;
+    }
+    *lst = tmp;
+}
+
+
 void pushElements(World *world, int level){
-	char line[100];
-    FILE *file = NULL;
+  FILE *file = NULL;
+
 	if(level == 1)
 		file = fopen("./img/ppm/new_ppm.ppm", "r"); // level 1
-    else 
+    else
 	   file = fopen("./img/ppm/new_ppm.ppm", "r");
-	/* Read line per line the file */
-	fgets(line, sizeof(line), file); /* Line P3 */
-	fgets(line, sizeof(line), file); /* Line GIMP... */
-	fgets(line, sizeof(line), file); /* Line Width & Height */
-	sscanf(line," %d %d", &(PPM_WIDTH), &(PPM_HEIGHT));
-	fgets(line, sizeof(line), file); /* 255 line */
 
+	char m[10]; // bin array
+	int i; // bin integer
+	int r,g,b;
+	fscanf(file, "%s\n%s %s %s %s %s %s %s\n",m,m,m,m,m,m,m,m); // Erease first ppm lines
+	fscanf(file, "%d %d\n", &(PPM_WIDTH), &(PPM_HEIGHT));
+	fscanf(file, "%d\n", &i);
 	int x = 0;
 	int y = PPM_HEIGHT;
-	int r, g, b;
-	char imgSrc[100];
 
-	while(fgets(line, sizeof(line), file) != NULL){
-		if(x == PPM_WIDTH){
+	while(fscanf(file, "%d\n%d\n%d\n", &r,&g,&b) != EOF){
+		if(x ==PPM_WIDTH){
 			x = 0;
 			y--;
 		}
-		fscanf(line," %d\n %d\n %d\n", &r, &g, &b);
-		if(r == 255 && g == 0 && b == 0){
-			// mobs
-		}
-		else if(r == 255 && g == 0 && b == 255){
-			// ship
-		}
-		else if(r == 0 && g == 0 && b == 0){
-			// obstacles
-		}
-		else if(r == 0 && g == 255 && b == 0){
-			// bonus
-		}
-		else if(r == 0 && g == 0 && b == 255){
-			// key
-		}
-		if(r == 255){
-			if(b == 0){
-				//mobs
-			}
-			else if(g == 0){
-				//ship
-			}
-		}
-		else {
-			if(g == 255){
-				//bonus
-			}
-			else if (b == 255){
-				//key
-			}
-			//obs
-		}
-		x++;
+	    if(r == 255){
+	      	if(g == 0){
+	        	if (b == 0) {
+	         		//printf("rouge\n");
+					addElementToList(&world->mobs, x, y, MOBS_LIFE, ELEMENTS_SPEED);
+					loadImgPNG("./img/elts/mummy.png", world->mobs);
+	        	}
+	        	else{
+	          		//printf("violet\n");
+					addElementToList(&world->ship, x, y, SHIP_LIFE, 0);
+					loadImgPNG("./img/elts/ship.png", world->ship);
+	       		}
+	      	}
+	    }
+	    else {
+		    if(g == 255){
+		  	    //printf("vert\n");	  	   
+				addElementToList(&world->bonus, x, y, BONUS_LIFE, ELEMENTS_SPEED);
+				loadImgPNG("./img/elts/eye.png", world->bonus);
+		    }
+		    else if (b == 255){
+		        //printf("bleu\n");
+				addElementToList(&world->key, x, y, KEY_LIFE, ELEMENTS_SPEED);
+				loadImgPNG("./img/elts/key.png", world->key);
+		    }
+		    else {
+		        //printf("obs\n");
+				addElementToList(&world->obstacles, x, y, OBSTACLES_LIFE, ELEMENTS_SPEED);
+				loadImgPNG("./img/elts/wall.png", world->obstacles);
+		    }
+	    }
+	    x++;
 	}
-
+	fclose(file);
 }
 
 
 int initializeSDL(){
 
-	 if(-1 == SDL_Init(SDL_INIT_VIDEO)) {
+	if(-1 == SDL_Init(SDL_INIT_VIDEO)) {
         fprintf(stderr, "Impossible d'initialiser la SDL. Fin du programme.\n");
         return EXIT_FAILURE;
     }
@@ -98,44 +109,41 @@ int initializeSDL(){
     resizeViewport(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     return EXIT_SUCCESS;
-
 }
 
 
 
 void initializeElements(World *world, int level){
-
-	GLuint bg1, bg2;
-	//createImgPNG(&bg1, )
-	float bgx1 = 0;
-	float bgy1 = 0;
-	float bgx2 = 60;
-	float bgy2 = 0;
-	float bgSpeed = 0.1;
-	Element *Bg1 = allocBg(bgx1,bgy1,bgSpeed,bg1); // 2 bg
-	Element *Bg2 = allocBg(bgx2,bgy2,bgSpeed,bg2); // 2 bg
-    Element *Ship;
-    pushElements(&world, level);
+	/* Backgrounds stuff*/
+	float bgx1 = 0.0;
+	float bgy1 = 0.0;
+	float bgx2 = 2.0;
+	float bgy2 = 0.0;
+	world->backgrounds = initBg(bgx1,bgy1,BACKGROUND_SPEED); // 2 bg
+	world->backgrounds->next = initBg(bgx2,bgy2,BACKGROUND_SPEED); // 2 bg
+	loadImgPNG("./img/fds/bg.png", world->backgrounds);
+	loadImgPNG("./img/fds/gb.png", world->backgrounds->next);
+	/* Other lists world initialization */
+    pushElements(world, level);
 
 }
 
 
-int initializeGame(World world, int level){
+int initializeGame(World *world, int level){
 
     /* SDL initialization */
     initializeSDL();
 
 
     /* ELEMENTS initialization */
-    initializeElements(&world, level);
+    initializeElements(world, level);
 
     /* */
-
     return EXIT_SUCCESS;
 
 }
 
-void gameLoop(){
+void gameLoop(World *world){
     int loop = 1;
 
     glClearColor(0, 0, 0, 1.0);
@@ -148,14 +156,20 @@ void gameLoop(){
     /*********** LOOP **********/
 
     while(loop) {
-
+    	int move = 0;
 
         glClear(GL_COLOR_BUFFER_BIT);
 
 	    glLoadIdentity();
 
 
+	    /* Move functions */
+	    moveBackground(world->backgrounds);
+	    moveBackground(world->backgrounds->next);
+
+
         /* Draw functions*/
+	    drawList(world->backgrounds);
 
 
 
@@ -190,21 +204,24 @@ void gameLoop(){
                             break;
                         case SDLK_UP:
                             /* GO UP */
+                        	move = 1;
                             break;
                         case SDLK_DOWN:
                             /* GO DOWN */
+                        	move = -1;
                             break;
                         case SDLK_SPACE:
                             /* SHOOT */
                             break;
                         default:
+                       		move = 0;
                             break;
                     }
                     break;
 
                 case SDL_KEYUP:
                     if(e.key.keysym.sym == SDLK_DOWN || e.key.keysym.sym == SDLK_UP){
-                        
+                        move = 0;
                     }
                     break;
 
@@ -212,7 +229,11 @@ void gameLoop(){
                     break;
                 }
             }
+            if (move != 0){
+            	moveShip(world->ship, move);
+            }
         }
+
 
         SDL_GL_SwapBuffers();
         Uint32 elapsedTime = SDL_GetTicks() - startTime;

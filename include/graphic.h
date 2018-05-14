@@ -55,10 +55,15 @@ typedef struct world{
 	ListeElements key;
 	ListeElements bonus;
 	int level;
-}World;
+} World;
 
 /********** PROTOTYPES *********/
 
 void resizeViewport(int w, int h);
-void loadImgPNG(char imgSrc[], ListeElement *elements);
+void loadImgPNG(char imgSrc[], ListeElements elements);
 void createImgPNG(GLuint *textureID, SDL_Surface* img);
+void drawList(ListeElements list);
+void drawElement(Element *e);
+void moveElement(Element *e);
+void moveShip(Element *e, int move);
+void moveBackground(Element *e);
