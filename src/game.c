@@ -7,6 +7,7 @@ ListeElements initBg(float x, float y, float speed){
 	tmp->pos.x = x;
 	tmp->pos.y = y;
 	tmp->speed = speed;
+	printf("%f\n", tmp->speed);
 	tmp->next = NULL;
 
 	return tmp;
