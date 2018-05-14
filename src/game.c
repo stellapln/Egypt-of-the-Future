@@ -7,7 +7,6 @@ ListeElements initBg(float x, float y, float speed){
 	tmp->pos.x = x;
 	tmp->pos.y = y;
 	tmp->speed = speed;
-	printf("%f\n", tmp->speed);
 	tmp->next = NULL;
 
 	return tmp;
@@ -15,8 +14,8 @@ ListeElements initBg(float x, float y, float speed){
 
 ListeElements initElement(float x, float y, int life, float speed){
 	Element *tmp = (Element*)malloc(sizeof(Element));
-	tmp->pos.x = x;
-	tmp->pos.y = y;
+	tmp->pos.x = x/60.0;
+	tmp->pos.y = y/40.0;
 	tmp->life = life;
 	tmp->next = NULL;
 
@@ -144,14 +143,21 @@ int initializeGame(World *world, int level){
 
 }
 
+void displayList(ListeElements e){
+	if (e == NULL) return;
+	printf("%f %f\n", e->pos.x, e->pos.y);
+	displayList(e->next);
+}
+
 void gameLoop(World *world){
     int loop = 1;
 
     glClearColor(0, 0, 0, 1.0);
 
-	glEnable(GL_BLEND);
-
     Uint32 startTime = SDL_GetTicks();
+
+	displayList(world->ship);
+	glEnable(GL_BLEND);
 
 
     /*********** LOOP **********/
@@ -168,9 +174,9 @@ void gameLoop(World *world){
 	    moveBackground(world->backgrounds);
 	    moveBackground(world->backgrounds->next);
 
-
         /* Draw functions*/
 	    drawList(world->backgrounds);
+	    drawList(world->ship);
 
 
 
