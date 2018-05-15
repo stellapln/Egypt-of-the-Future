@@ -1,6 +1,6 @@
 #include "../include/graphic.h"
 
-static float ELEMENTS_SPEED = 0.15; // Except for the ship
+static float ELEMENTS_SPEED = 0.3; // Except for the ship
 static float BACKGROUND_SPEED = 0.01;
 static const int MOBS_LIFE = 1;
 static const int BONUS_LIFE = 1;
@@ -15,4 +15,4 @@ void pushElements(World *world, int level);
 int initializeSDL();
 void initializeElements(World *world, int level);
 int initializeGame(World *world, int level);
-void gameLoop();
+void gameLoop(World *world);

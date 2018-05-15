@@ -24,25 +24,18 @@ ListeElements initElement(float x, float y, int life, float speed){
 	tmp->life = life;
 	tmp->speed = speed;
 	tmp->next = NULL;
+    /* Bounding Box */
+    tmp->pmax.x = tmp->pos.x + 0.5*PPM_WIDTH/60.0;
+    tmp->pmax.y = tmp->pos.y + 0.5*PPM_HEIGHT/40.0;
+    tmp->pmin.x = tmp->pos.x - 0.5*PPM_WIDTH/60.0;
+    tmp->pmin.y = tmp->pos.y - 0.5*PPM_HEIGHT/40.0;
+    printf("%f %f %f %f\n", tmp->pmax.x, tmp->pmax.y,tmp->pmin.x,tmp->pmin.y);
 
 	return tmp;
 }
 
 void addElementToList(ListeElements *lst, float x, float y, int life, float speed){
 	Element *tmp = initElement(x, y, life, speed);
-    //printf("caca %p\n", *lst);
-    //ListeElements tmpList = *lst;
-    /*if (*lst == NULL){
-
-        *lst = tmp;
-        printf("premier ajout\n");
-    }
-    else{
-        while(tmpList->next != NULL){
-            tmpList = tmpList->next;
-        }
-        tmpList->next = tmp;
-    }*/
 	if (*lst != NULL){
 		tmp->next = *lst;
     }
@@ -75,8 +68,8 @@ void pushElements(World *world, int level){
 	      	if(g == 0){
 	        	if (b == 0) {
 	         		//printf("rouge\n");
-					//addElementToList(&world->mobs, x, y, MOBS_LIFE, ELEMENTS_SPEED);
-					//loadImgPNG("./img/elts/mummy.png", world->mobs);
+					addElementToList(&world->mobs, x, y, MOBS_LIFE, ELEMENTS_SPEED);
+					loadImgPNG("./img/elts/mummy.png", world->mobs);
 	        	}
 	        	else{
 	          		//printf("violet\n");
@@ -88,18 +81,18 @@ void pushElements(World *world, int level){
 	    else {
 		    if(g == 255){
 		  	    //printf("vert\n");	  	   
-				//addElementToList(&world->bonus, x, y, BONUS_LIFE, ELEMENTS_SPEED);
-				//loadImgPNG("./img/elts/eye.png", world->bonus);
+				addElementToList(&world->bonus, x, y, BONUS_LIFE, ELEMENTS_SPEED);
+				loadImgPNG("./img/elts/eye.png", world->bonus);
 		    }
 		    else if (b == 255){
 		        //printf("bleu\n");
-				//addElementToList(&world->key, x, y, KEY_LIFE, ELEMENTS_SPEED);
-				//loadImgPNG("./img/elts/key.png", world->key);
+				addElementToList(&world->key, x, y, KEY_LIFE, ELEMENTS_SPEED);
+				loadImgPNG("./img/elts/key.png", world->key);
 		    }
 		    else {
 		        //printf("obs\n");
-				//addElementToList(&world->obstacles, x, y, OBSTACLES_LIFE, ELEMENTS_SPEED);
-				//loadImgPNG("./img/elts/wall.png", world->obstacles);
+				addElementToList(&world->obstacles, x, y, OBSTACLES_LIFE, ELEMENTS_SPEED);
+				loadImgPNG("./img/elts/wall.png", world->obstacles);
 		    }
 	    }
 	    x++;
@@ -149,16 +142,15 @@ void initializeElements(World *world, int level){
     world->bonus = NULL;
 
     pushElements(world, level);
-   // displayList(world->obstacles);
+    //displayList(world->obstacles);
 
 }
 
 
-int initializeGame(World world, int level){
+int initializeGame(World *world, int level){
 
     /* SDL initialization */
     initializeSDL();
-
 
     /* ELEMENTS initialization */
     initializeElements(world, level);
@@ -198,31 +190,48 @@ void gameLoop(World *world){
 
 
 	    /* Move functions */
+        /* Backgrounds */
 	    moveBackground(world->backgrounds);
 	    moveBackground(world->backgrounds->next);
+        /* Obstacles */
+        moveElements(world->obstacles, ELEMENTS_SPEED);
+        /* Mobs */
+        moveElements(world->mobs, ELEMENTS_SPEED);
+        /* Key */
+        moveElements(world->key, ELEMENTS_SPEED);
+        /* Bonus */
+        moveElements(world->bonus, ELEMENTS_SPEED);
 
         /* Draw functions*/
+        /* Backgrounds */
 	    drawList(world->backgrounds, WINDOW_WIDTH/30.0, WINDOW_HEIGHT/30.0);
+        /* Obstacles */
+        drawList(world->obstacles, 1, 1);
+        /* Mobs */
+        drawList(world->mobs, 1, 1);
+        /* Key */
+        drawList(world->key, 1, 1);
+        /* Bonus */
+        drawList(world->bonus, 1, 1);
 
-        //displayList(world->obstacles);
-        printf("avant\n");
-        //drawList(world->obstacles,1, 1);
-        printf("là\n");
-        //moveElements(world->obstacles, ELEMENTS_SPEED);
-
+        drawBB(world->obstacles);
+        drawBB(world->mobs);
+        drawBB(world->bonus);
+        drawBB(world->key);
 		drawLandmark();
 
+        /* Ship move and drawing */
         if(move != 0){
         	moveShip(world->ship, move);
             /* Redrawing */
             glPushMatrix();
-                glTranslatef(world->ship->pos.x,world->ship->pos.y, 0);
+                glTranslatef(world->ship->pos.x, world->ship->pos.y, 0);
                 glRotatef(10.0*move, 0, 0, 1.0); /* rotate down or up */
-                drawShipInMove(world->ship, WINDOW_WIDTH/300.0,WINDOW_HEIGHT/300.0);
+                drawShipInMove(world->ship, WINDOW_WIDTH/350.0,WINDOW_HEIGHT/350.0);
             glPopMatrix();  
         }
         else{
-            drawList(world->ship, WINDOW_WIDTH/300.0, WINDOW_HEIGHT/300.0);
+            drawList(world->ship, WINDOW_WIDTH/350.0, WINDOW_HEIGHT/350.0);
         }
 
 	    SDL_GL_SwapBuffers();

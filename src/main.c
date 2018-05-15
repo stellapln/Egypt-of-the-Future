@@ -13,10 +13,10 @@ int main(int argc, char** argv){
 	}
 
 	int level = (int)argv[1];
-	World world = (World*)malloc(sizeof(World));
+	World *world = (World*)malloc(sizeof(World));
 
-	initializeGame(&world, level);
-	gameLoop();
+	initializeGame(world, level);
+	gameLoop(world);
 
 	return EXIT_SUCCESS;
 }

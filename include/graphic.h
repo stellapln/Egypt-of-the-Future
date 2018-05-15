@@ -39,7 +39,7 @@ typedef struct coord{
 */
 typedef struct element{
 	Coordinates pos;
-	Coordinates pminX, pmaxX, pminY, pmaxY;
+	Coordinates pmin, pmax;
 	int life;
 	float speed;
     GLuint textureID;
@@ -63,10 +63,12 @@ void resizeViewport(int w, int h);
 void loadImgPNG(char imgSrc[], ListeElements elements);
 void createImgPNG(GLuint *textureID, SDL_Surface* img);
 void drawList(ListeElements list,float,float);
-void drawElement(Element *e,float,float);
-void moveElement(Element *e);
+void drawElement(Element *e,float width,float height);
 void moveShip(Element *e, int move);
 void moveBackground(Element *e);
 void drawLandmark();
-void moveElements(Element *e, float speed);
 void drawShipInMove(Element *e, float width, float height);
+void moveElements(ListeElements l, float speed);
+
+/* DEBUG */
+void drawBB(ListeElements l);

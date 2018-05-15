@@ -72,13 +72,11 @@ void drawElement(Element *e, float width, float height){
 
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
-    printf("fin draw\n");
     }
 }
 
 void drawShipInMove(Element *e, float width, float height){
-	 /* Transparency */
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); /* Transparency */
     /* Brackground drawing */
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, e->textureID);
@@ -105,7 +103,7 @@ void drawShipInMove(Element *e, float width, float height){
 
 void drawLandmark(){
 	int i, size;
-	size = WINDOW_HEIGHT;
+	size = WINDOW_WIDTH;
 
     glColor3ub(255, 0, 0);
 	for(i = 0 ; i < size ; i++){
@@ -123,20 +121,14 @@ void drawLandmark(){
 	glColor3ub(255,255,255);
 }
 
-void moveElement(Element *e){
-	glPushMatrix();
-    	glTranslatef(e->pos.x-e->speed, e->pos.y, 0);
-        glScalef(1.0,1.0,1.0);
-        glEnd();
-    glPopMatrix();
-}
+void moveElements(ListeElements l, float speed){
+    while(l!=NULL){
+        l->pos.x -= speed;
+        l->pmax.x -= speed;
+        l->pmin.x -= speed;
 
-void moveElements(Element *e, float speed){
-	e->pos.x -= speed;
-	glPushMatrix();
-        glTranslatef(e->pos.y, e->pos.y, 0);
-        drawElement(e, WINDOW_WIDTH/300.0,WINDOW_HEIGHT/300.0);
-    glPopMatrix();
+        l=l->next;
+    }
 }
 
 void moveShip(Element *e, int move){
@@ -159,4 +151,27 @@ void moveShip(Element *e, int move){
 void moveBackground(Element *e){
     if(e->pos.x < -30.0) e->pos.x = 90.0;
     else e->pos.x -= e->speed;
+}
+
+/* DEBUG */
+void drawBB(ListeElements l){
+    
+    glColor3ub(0, 255, 0);
+        glBegin(GL_QUADS);
+    while(l!=NULL){ 
+
+
+            glVertex2f(l->pmin.x,l->pmax.y);
+
+            glVertex2f(l->pmax.x,l->pmax.y);
+
+            glVertex2f(l->pmax.x,l->pmin.y);
+
+            glVertex2f(l->pmin.x,l->pmin.y);
+
+        l=l->next;
+    }
+
+        glEnd();
+    glColor3ub(255,255,255);
 }
