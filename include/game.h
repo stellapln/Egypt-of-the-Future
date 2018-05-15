@@ -1,7 +1,7 @@
 #include "../include/graphic.h"
 
 static float ELEMENTS_SPEED = 0.15; // Except for the ship
-static float BACKGROUND_SPEED = 0.0005;
+static float BACKGROUND_SPEED = 0.01;
 static const int MOBS_LIFE = 1;
 static const int BONUS_LIFE = 1;
 static const int KEY_LIFE = 1;
