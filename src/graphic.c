@@ -38,46 +38,58 @@ void loadImgPNG(char imgSrc[], ListeElements elements){
 	elements->textureID = id;
 }
 
-void drawList(ListeElements list, float width, float height){
+void drawList(ListeElements list, float width, float height, int collision){
 	while(list != NULL){
-		drawElement(list, width, height);
+		drawElement(list, width, height, collision);
 		list=list->next;
 	}
 }
 
-void drawElement(Element *e, float width, float height){
+void drawElement(Element *e, float width, float height, int collision){
     /* Transparency */
     if(e->textureID){
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    /* Brackground drawing */
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, e->textureID);
-        glPushMatrix();
-        	glTranslatef(e->pos.x, e->pos.y, 0);
-            glScalef(width,height,1.0);
-            glBegin(GL_QUADS);
-            glTexCoord2f(0,0);
-            glVertex2f(-1,1);
+        if(collision > 0){
+            glColor3ub(255,255,100);
+        }
+        else if(collision < 0){
+            glColor3ub(255,100,100);
+        }
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        /* Brackground drawing */
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, e->textureID);
+            glPushMatrix();
+            	glTranslatef(e->pos.x, e->pos.y, 0);
+                glScalef(width,height,1.0);
+                glBegin(GL_QUADS);
+                glTexCoord2f(0,0);
+                glVertex2f(-1,1);
 
-            glTexCoord2f(1,0);
-            glVertex2f(1,1);
+                glTexCoord2f(1,0);
+                glVertex2f(1,1);
 
-            glTexCoord2f(1,1);
-            glVertex2f(1,-1);
+                glTexCoord2f(1,1);
+                glVertex2f(1,-1);
 
-            glTexCoord2f(0,1);
-            glVertex2f(-1,-1);
-            glEnd();
-        glPopMatrix();
+                glTexCoord2f(0,1);
+                glVertex2f(-1,-1);
+                glEnd();
+            glPopMatrix();
 
-    glDisable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 
-void drawShipInMove(Element *e, float width, float height){
+void drawShipInMove(Element *e, float width, float height, int collision){
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); /* Transparency */
-    /* Brackground drawing */
+    /* Brackground drawing */   
+    if(collision > 0){
+        glColor3ub(255,255,100);
+    }
+    else if(collision < 0){
+        glColor3ub(255,100,100);
+    }
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, e->textureID);
         glPushMatrix();
@@ -126,7 +138,6 @@ void moveElements(ListeElements l, float speed){
         l->pos.x -= speed;
         l->pmax.x -= speed;
         l->pmin.x -= speed;
-
         l=l->next;
     }
 }
@@ -137,15 +148,18 @@ void moveShip(Element *e, int move){
     if (move == 1){
         if(e->pos.y + e->speed <= 39.0){
             e->pos.y += e->speed;
+            e->pmin.y += e->speed;
+            e->pmax.y += e->speed;
         }
     }
     /* Down */
     else if (move == -1){
         if(e->pos.y - e->speed >= 1.0){
             e->pos.y -= e->speed;
+            e->pmin.y -= e->speed;
+            e->pmax.y -= e->speed;
         }
     }
-   
 }
 
 void moveBackground(Element *e){

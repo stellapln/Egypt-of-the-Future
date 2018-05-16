@@ -17,8 +17,8 @@
 
 /***** VARIABLES & STRUCTURES *****/
 
-static unsigned int WINDOW_WIDTH = 900;
-static unsigned int WINDOW_HEIGHT = 600;
+static float WINDOW_WIDTH = 900.0;
+static float WINDOW_HEIGHT = 600.0;
 static unsigned int PPM_WIDTH;
 static unsigned int PPM_HEIGHT;
 static const unsigned int BIT_PER_PIXEL = 32;
@@ -55,6 +55,7 @@ typedef struct world{
 	ListeElements key;
 	ListeElements bonus;
 	int level;
+	float speed;
 } World;
 
 /********** PROTOTYPES *********/
@@ -62,12 +63,12 @@ typedef struct world{
 void resizeViewport(int w, int h);
 void loadImgPNG(char imgSrc[], ListeElements elements);
 void createImgPNG(GLuint *textureID, SDL_Surface* img);
-void drawList(ListeElements list,float,float);
-void drawElement(Element *e,float width,float height);
+void drawList(ListeElements list,float,float, int collision);
+void drawElement(Element *e,float width,float height, int collision);
 void moveShip(Element *e, int move);
 void moveBackground(Element *e);
 void drawLandmark();
-void drawShipInMove(Element *e, float width, float height);
+void drawShipInMove(Element *e, float width, float height, int collision);
 void moveElements(ListeElements l, float speed);
 
 /* DEBUG */
