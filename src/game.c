@@ -145,8 +145,8 @@ void initializeElements(World *world, int level){
 	float bgy1 = 20.0;
 	float bgx2 = 90.0;
 	float bgy2 = 20.0;
-	world->backgrounds = initBg(bgx1,bgy1,0.1); // 2 bg
-	world->backgrounds->next = initBg(bgx2,bgy2,0.1); // 2 bg
+	world->backgrounds = initBg(bgx1,bgy1,0.15); // 2 bg
+	world->backgrounds->next = initBg(bgx2,bgy2,0.15); // 2 bg
 	loadImgPNG("./img/fds/bg.png", world->backgrounds);
 	loadImgPNG("./img/fds/gb.png", world->backgrounds->next);
 	/* Other lists world initialization */
@@ -209,6 +209,10 @@ int collisionArrow(World world){
     int c_obstacles;
     int c_mobs;
 
+    if (world.arrows == NULL){
+        return 0;
+    }
+
     c_obstacles = collisionElement(world.obstacles, world.arrows);
     if(c_obstacles){
         return -1;
@@ -220,22 +224,43 @@ int collisionArrow(World world){
     return 0;
 }
 
-int collisionElement(ListeElements liste1, ListeElements liste2){
-    while(liste1 != NULL){
-        if(liste2->pmax.x >= liste1->pmin.x && liste2->pmin.x <= liste1->pmax.x){
-            if(liste2->pmax.y >= liste1->pmin.y && liste2->pmin.y <= liste1->pmax.y){
+int collisionElement(ListeElements bad, ListeElements good){
+    while(bad != NULL){
+        if(good->pmax.x >= bad->pmin.x && good->pmin.x <= bad->pmax.x){
+            if(good->pmax.y >= bad->pmin.y && good->pmin.y <= bad->pmax.y){
+                good->life--;
+                bad->life--;
                 return 1;
             }
         }
-        liste1 = liste1->next;
+        bad = bad->next;
     }
     return 0;
+}
+
+ListeElements cleanList(ListeElements l){
+    if(l == NULL){
+        return NULL;
+    }
+
+    if(l->life == 0){
+        ListeElements *tmp = l->next;
+        glDeleteTextures(1, &l->textureID);
+        free(l);
+        tmp = cleanList(tmp);
+        return tmp;
+    }
+    else {
+        l->next = cleanList(l->next);
+        return l;
+    }
 }
 
 void gameLoop(World *world){
     int loop = 1;
     int move = 0;
-    int collision = 0;
+    int collShip = 0;
+    int collArrow = 0;
     int points = 0;
 
     glClearColor(0, 0, 0, 1.0);
@@ -244,18 +269,16 @@ void gameLoop(World *world){
 
 	glEnable(GL_BLEND);
 
-
     resizeViewport(WINDOW_WIDTH,WINDOW_HEIGHT);
 
 
     /*********** LOOP **********/
 
-    while(loop) {
+    while(loop){
 
         glClear(GL_COLOR_BUFFER_BIT);
 
 	    //glLoadIdentity();
-
 
 	    /* Move functions */
         /* Backgrounds */
@@ -287,10 +310,11 @@ void gameLoop(World *world){
         // drawBB(world->bonus);
         // drawBB(world->key);
         // drawBB(world->ship);
-		// drawLandmark();
+        //drawBB(world->arrows);
+		//drawLandmark();
 
-        /* COLLISION */
-        switch(collision = collisionShip(*world)){
+        /* COLLISION SHIP */
+        switch(collShip = collisionShip(*world)){
             case 0 : 
                     break; //Pas de collision
             case 1 : //Bonus
@@ -300,11 +324,24 @@ void gameLoop(World *world){
                     points += 500;
                     break;
             case -1 : //Wall
-                    world->ship->life -= 1;
-
                     break;
             case -2 : //Mummy
-                    world->ship->life -= 2;
+                    break;
+            default:
+                    break;
+        }
+
+        /* COLLISION ARROW */
+        switch(collArrow = collisionArrow(*world)){
+            case 0 : 
+                    break; //Pas de collision
+            case -1 : //Wall
+                    points += 50;
+                    //world->obstacles->life--;
+                    break;
+            case 1 : //Mummy
+                    points += 50;
+                   // world->mobs->life--;
                     break;
             default:
                     break;
@@ -317,13 +354,22 @@ void gameLoop(World *world){
             glPushMatrix();
                 glTranslatef(world->ship->pos.x, world->ship->pos.y, 0);
                 glRotatef(10.0*move, 0, 0, 1.0); /* rotate down or up */
-                drawShipInMove(world->ship, WINDOW_WIDTH/350.0,WINDOW_HEIGHT/350.0, collision);
+                drawShipInMove(world->ship, WINDOW_WIDTH/350.0,WINDOW_HEIGHT/350.0, collShip);
             glPopMatrix();  
         }
         else{
-            drawList(world->ship, WINDOW_WIDTH/350.0, WINDOW_HEIGHT/350.0, collision);
+            drawList(world->ship, WINDOW_WIDTH/350.0, WINDOW_HEIGHT/350.0, collShip);
         }
+
         glColor3ub(255, 255, 255);
+
+
+        /* ARROWS */
+        if(world->arrows != NULL){
+            drawList(world->arrows, 1, 0.3, 0);
+            moveElements(world->arrows, -world->arrows->speed);
+        }
+
 
 	    SDL_GL_SwapBuffers();
 
@@ -363,6 +409,8 @@ void gameLoop(World *world){
                             break;
                         case SDLK_SPACE:
                             /* SHOOT */
+                            addElementToList(&world->arrows, world->ship->pos.x-0.6, world->ship->pos.y+0.6, 1, 0.8);
+                            loadImgPNG("./img/elts/arrow.png", world->arrows);
                             break;
                         default:
                        		move = 0;
@@ -380,7 +428,13 @@ void gameLoop(World *world){
                     break;
                 }
             }
-        }
+
+            world->obstacles = cleanList(world->obstacles);
+            world->arrows = cleanList(world->arrows);
+            world->mobs = cleanList(world->mobs);
+    }
+
+
 
 
         SDL_GL_SwapBuffers();

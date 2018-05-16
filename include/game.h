@@ -6,7 +6,7 @@ static const int MOBS_LIFE = 1;
 static const int BONUS_LIFE = 1;
 static const int KEY_LIFE = 1;
 static const int OBSTACLES_LIFE = 1;
-static const int SHIP_LIFE = 3;
+static const int SHIP_LIFE = 20;
 
 ListeElements initBg(float x, float y, float speed);
 ListeElements initElement(float x, float y, int life, float speed);
@@ -18,5 +18,5 @@ int initializeGame(World *world, int level);
 void gameLoop(World *world);
 ListeElements initShip(float x, float y, int life, float speed);
 int collisionArrow(World world);
-int collisionElement(ListeElements liste1, ListeElements liste2);
+int collisionElement(ListeElements bad, ListeElements good);
 int collisionShip(World world);
