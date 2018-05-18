@@ -48,7 +48,6 @@ ListeElements initShip(float x, float y, int life, float speed){
     tmp->pmax.y = tmp->pos.y + (WINDOW_WIDTH/WINDOW_HEIGHT)*PPM_HEIGHT/40.0;
     tmp->pmin.x = tmp->pos.x - (0.5*(WINDOW_WIDTH/WINDOW_HEIGHT)*PPM_WIDTH)/60.0 + 0.5;
     tmp->pmin.y = tmp->pos.y - (WINDOW_WIDTH/WINDOW_HEIGHT)*PPM_HEIGHT/40.0;
-    printf("%f\n", WINDOW_WIDTH/WINDOW_HEIGHT);
 
     return tmp;
 }
@@ -71,8 +70,8 @@ void pushElements(World *world, int level){
 
 	char m[10]; // bin array
 	int i; // bin integer
-	int r,g,b;
-	fscanf(file, "%s\n%s %s %s %s %s %s %s\n",m,m,m,m,m,m,m,m); // Erease first ppm lines
+	int r,g,b; // R G B value
+	fscanf(file, "%s\n%s %s %s %s %s %s %s\n",m,m,m,m,m,m,m,m); // Erase first ppm lines
 	fscanf(file, "%d %d\n", &(PPM_WIDTH), &(PPM_HEIGHT));
 	fscanf(file, "%d\n", &i);
 	int x = 0;
@@ -120,7 +119,6 @@ void pushElements(World *world, int level){
 }
 
 int initializeSDL(){
-
 	if(-1 == SDL_Init(SDL_INIT_VIDEO)) {
         fprintf(stderr, "Impossible d'initialiser la SDL. Fin du programme.\n");
         return EXIT_FAILURE;
@@ -140,13 +138,13 @@ int initializeSDL(){
 }
 
 void initializeElements(World *world, int level){
-	/* Backgrounds stuff*/
+	/* Backgrounds stuff */
 	float bgx1 = 30.0;
 	float bgy1 = 20.0;
 	float bgx2 = 90.0;
 	float bgy2 = 20.0;
-	world->backgrounds = initBg(bgx1,bgy1,0.15); // 2 bg
-	world->backgrounds->next = initBg(bgx2,bgy2,0.15); // 2 bg
+	world->backgrounds = initBg(bgx1,bgy1,0.15); // 1st bg
+	world->backgrounds->next = initBg(bgx2,bgy2,0.15); // 2nd bg
 	loadImgPNG("./img/fds/bg.png", world->backgrounds);
 	loadImgPNG("./img/fds/gb.png", world->backgrounds->next);
 	/* Other lists world initialization */
@@ -158,21 +156,16 @@ void initializeElements(World *world, int level){
     world->bonus = NULL;
     world->speed = 0.2;
     pushElements(world, level);
-    //displayList(world->obstacles);
-
 }
 
 int initializeGame(World *world, int level){
-
     /* SDL initialization */
     initializeSDL();
 
     /* ELEMENTS initialization */
     initializeElements(world, level);
 
-    /* */
     return EXIT_SUCCESS;
-
 }
 
 void displayList(ListeElements e){
@@ -295,15 +288,15 @@ void gameLoop(World *world){
 
         /* Draw functions*/
         /* Backgrounds */
-	    drawList(world->backgrounds, WINDOW_WIDTH/30.0, WINDOW_HEIGHT/30.0, 0);
+	    drawList(world->backgrounds, WINDOW_WIDTH/30.0, WINDOW_HEIGHT/30.0);
         /* Obstacles */
-        drawList(world->obstacles, 1, 1, 0);
+        drawList(world->obstacles, 1, 1);
         /* Mobs */
-        drawList(world->mobs, 1, 1,0);
+        drawList(world->mobs, 1, 1);
         /* Key */
-        drawList(world->key, 1, 1, 0);
+        drawList(world->key, 1, 1);
         /* Bonus */
-        drawList(world->bonus, 1, 1, 0);
+        drawList(world->bonus, 1, 1);
 
         // drawBB(world->obstacles);
         // drawBB(world->mobs);
@@ -358,7 +351,7 @@ void gameLoop(World *world){
             glPopMatrix();  
         }
         else{
-            drawList(world->ship, WINDOW_WIDTH/350.0, WINDOW_HEIGHT/350.0, collShip);
+            drawList(world->ship, WINDOW_WIDTH/350.0, WINDOW_HEIGHT/350.0);
         }
 
         glColor3ub(255, 255, 255);
@@ -366,7 +359,7 @@ void gameLoop(World *world){
 
         /* ARROWS */
         if(world->arrows != NULL){
-            drawList(world->arrows, 1, 0.3, 0);
+            drawList(world->arrows, 1, 0.3);
             moveElements(world->arrows, -world->arrows->speed);
         }
 

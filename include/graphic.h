@@ -15,7 +15,7 @@
 #include <math.h>
 
 
-/***** VARIABLES & STRUCTURES *****/
+/******** VARIABLES & STRUCTURES ********/
 
 static float WINDOW_WIDTH = 900.0;
 static float WINDOW_HEIGHT = 600.0;
@@ -32,7 +32,7 @@ typedef struct coord{
 
 /* Each element will have:
 * position x & y from the coordinates structure
-* 4 coordinates for the bouding box
+* 2 points (with 2 coordinates) for bounding boxs
 * a velocity
 * a texture
 * will be in a simple list
@@ -58,18 +58,29 @@ typedef struct world{
 	float speed;
 } World;
 
+
+
 /********** PROTOTYPES *********/
 
+/* Will resize de window in needed */
 void resizeViewport(int w, int h);
-void loadImgPNG(char imgSrc[], ListeElements elements);
+/* Create a texture from an image */
 void createImgPNG(GLuint *textureID, SDL_Surface* img);
-void drawList(ListeElements list,float,float, int collision);
-void drawElement(Element *e,float width,float height, int collision);
-void moveShip(Element *e, int move);
-void moveBackground(Element *e);
-void drawLandmark();
+/* Affects the texture passed in parameters to the elements, load the PNG image and calls the createImgPNG function */
+void loadImgPNG(char imgSrc[], ListeElements elements);
+/* Calls the drawElement function until the list in parameters is null */
+void drawList(ListeElements list,float,float);
+/* Draw all the elements from the list sent by drawList */
+void drawElement(Element *e,float width,float height);
+/* Draw the ship when it's moving and colors it if collision */
 void drawShipInMove(Element *e, float width, float height, int collision);
+/* Moves the elements from the ppm execpt the ship with the same speed gave in parameters */
 void moveElements(ListeElements l, float speed);
+/* Moves the BG with its own speed to create a parallax effect */
+void moveBackground(Element *e);
+/* Decrements or increments the ship y position depends on the move value -1 or 1 */
+void moveShip(Element *e, int move);
 
 /* DEBUG */
 void drawBB(ListeElements l);
+void drawLandmark();

@@ -38,22 +38,15 @@ void loadImgPNG(char imgSrc[], ListeElements elements){
 	elements->textureID = id;
 }
 
-void drawList(ListeElements list, float width, float height, int collision){
+void drawList(ListeElements list, float width, float height){
 	while(list != NULL){
-		drawElement(list, width, height, collision);
+		drawElement(list, width, height);
 		list=list->next;
 	}
 }
 
-void drawElement(Element *e, float width, float height, int collision){
+void drawElement(Element *e, float width, float height){
     /* Transparency */
-    if(e->textureID){
-        if(collision > 0){
-            glColor3ub(255,255,100);
-        }
-        else if(collision < 0){
-            glColor3ub(255,100,100);
-        }
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         /* Brackground drawing */
         glEnable(GL_TEXTURE_2D);
@@ -78,7 +71,6 @@ void drawElement(Element *e, float width, float height, int collision){
 
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
-    }
 }
 
 void drawShipInMove(Element *e, float width, float height, int collision){
@@ -113,26 +105,6 @@ void drawShipInMove(Element *e, float width, float height, int collision){
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void drawLandmark(){
-	int i, size;
-	size = WINDOW_WIDTH;
-
-    glColor3ub(255, 0, 0);
-	for(i = 0 ; i < size ; i++){
-		glBegin(GL_LINES);
-			glVertex2f(i,-size);
-			glVertex2f(i, size);
-		glEnd();
-	}
-	for(i = 0 ; i < size ; i++){
-		glBegin(GL_LINES);
-			glVertex2f(-size, i);
-			glVertex2f(size, i);
-		glEnd();
-	}
-	glColor3ub(255,255,255);
-}
-
 void moveElements(ListeElements l, float speed){
     while(l!=NULL){
         l->pos.x -= speed;
@@ -163,7 +135,7 @@ void moveShip(Element *e, int move){
 }
 
 void moveBackground(Element *e){
-    if(e->pos.x < -30.0) e->pos.x = 90.0;
+    if(e->pos.x <= -30.0) e->pos.x = 90.0;
     else e->pos.x -= e->speed;
 }
 
@@ -187,5 +159,25 @@ void drawBB(ListeElements l){
     }
 
         glEnd();
+    glColor3ub(255,255,255);
+}
+/* DEBUGG */
+void drawLandmark(){
+    int i, size;
+    size = WINDOW_WIDTH;
+
+    glColor3ub(255, 0, 0);
+    for(i = 0 ; i < size ; i++){
+        glBegin(GL_LINES);
+            glVertex2f(i,-size);
+            glVertex2f(i, size);
+        glEnd();
+    }
+    for(i = 0 ; i < size ; i++){
+        glBegin(GL_LINES);
+            glVertex2f(-size, i);
+            glVertex2f(size, i);
+        glEnd();
+    }
     glColor3ub(255,255,255);
 }

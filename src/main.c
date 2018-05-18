@@ -2,7 +2,6 @@
 
 
 int main(int argc, char** argv){
-
 	if (argc != 2){
 		printf("Veuillez préciser le niveau (./main [123])\n");
 		return 0;
