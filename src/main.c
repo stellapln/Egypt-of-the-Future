@@ -8,5 +8,5 @@ int main(int argc, char** argv){
 	initializeGame(world, level);
 	gameLoop(world);
 
-	return EXIT_SUCCESS;
+	return 0;
 }

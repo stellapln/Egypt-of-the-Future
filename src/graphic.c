@@ -25,6 +25,7 @@ void createImgPNG(GLuint *textureID, SDL_Surface* img){
 		GL_UNSIGNED_BYTE,
 		img->pixels);
 	glBindTexture(GL_TEXTURE_2D,0);
+    SDL_FreeSurface(img);
 }
 
 void loadImgPNG(char imgSrc[], ListeElements elements){
@@ -36,6 +37,46 @@ void loadImgPNG(char imgSrc[], ListeElements elements){
 	GLuint id;
 	createImgPNG(&id, img);
 	elements->textureID = id;
+}
+
+void loadImgNb(char imgSrc[], GLuint texture[], int index){
+    SDL_Surface *img = IMG_Load(imgSrc);
+    if(img == NULL){
+        printf("ERROR at loading image from %s\n", imgSrc);
+        exit(1);
+    }
+    GLuint id;
+    createImgPNG(&id, img);
+    texture[index] = id;
+}
+
+void drawScore(GLuint texture, int posX, int nb){
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    /* Brackground drawing */
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture);
+        glPushMatrix();
+            glTranslatef(posX+50, 39, 0);
+            if(nb == 1) glScalef(0.5,0.5,1.0);
+            else if(nb == 0) glScalef(1.5,1.5,0);
+            else if(nb == 2) glScalef(1.2,1.2,0);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0,0);
+            glVertex2f(-1,1);
+
+            glTexCoord2f(1,0);
+            glVertex2f(1,1);
+
+            glTexCoord2f(1,1);
+            glVertex2f(1,-1);
+
+            glTexCoord2f(0,1);
+            glVertex2f(-1,-1);
+            glEnd();
+        glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void drawList(ListeElements list, float width, float height){
@@ -105,8 +146,36 @@ void drawShipInMove(Element *e, float width, float height, int collision){
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void moveElements(ListeElements l, float speed){
+void moveElementsVertical(World world){
+    float speed;
+    while(world.mobs!=NULL){
+        if(world.mobs->type == 'd' && world.mobs->pos.x <= 60.0){
+            speed = world.mobs->speed - 0.06;
+            if (world.mobs->pos.y > world.ship->pos.y){
+                world.mobs->pos.y -= speed;
+                world.mobs->pmax.y -= speed;
+                world.mobs->pmin.y -= speed;
+            }
+            else{
+                world.mobs->pos.y += speed;
+                world.mobs->pmax.y += speed;
+                world.mobs->pmin.y += speed;
+            }
+        }
+        world.mobs = world.mobs->next;
+    }
+}
+
+void moveElements(ListeElements l){
     while(l!=NULL){
+        float speed = l->speed;
+
+        //Delete arrows
+        if (l->type == 'a'){
+            if (l->pos.x > 60){
+                l->life = 0;
+            }
+        }
         l->pos.x -= speed;
         l->pmax.x -= speed;
         l->pmin.x -= speed;
@@ -139,7 +208,7 @@ void moveBackground(Element *e){
     else e->pos.x -= e->speed;
 }
 
-/* DEBUG */
+/********** DEBUG ***********/
 void drawBB(ListeElements l){
     
     glColor3ub(0, 255, 0);
@@ -161,7 +230,6 @@ void drawBB(ListeElements l){
         glEnd();
     glColor3ub(255,255,255);
 }
-/* DEBUGG */
 void drawLandmark(){
     int i, size;
     size = WINDOW_WIDTH;
